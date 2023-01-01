@@ -7,8 +7,8 @@ let access_token: string;
 
 test('Init Spoityf Api', () => {
   spotifyApi = new SpotifyWebApi({
-    clientId: 'f51b7b209676447e810a666c96879e96',
-    clientSecret: '090b1efd0d184acd94e57b1832045a9e',
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
     redirectUri: 'http://localhots:3000',
   });
 
@@ -16,8 +16,8 @@ test('Init Spoityf Api', () => {
 });
 
 test('Get access token', async () => {
-  const client_id = 'f51b7b209676447e810a666c96879e96';
-  const client_secret = '090b1efd0d184acd94e57b1832045a9e';
+  const client_id = process.env.CLIENT_ID;
+  const client_secret = process.env.CLIENT_SECRET;
   const url = 'https://accounts.spotify.com/api/token';
 
   const headers = {
