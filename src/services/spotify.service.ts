@@ -29,8 +29,6 @@ export default class SpotifyService {
     const { data } = res;
     const accessToken = data?.access_token;
     this.spotifyApi.setAccessToken(accessToken);
-
-    expect(data).not.toBeNull();
   }
 
   public async getPlaylistTracks(playlistId: string): Promise<Array<Track>> {
