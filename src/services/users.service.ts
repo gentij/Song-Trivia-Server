@@ -4,6 +4,7 @@ import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
 import userModel from '@models/users.model';
 import { isEmpty } from '@utils/util';
+import { redisClient } from '@/databases';
 
 class UserService {
   // public users = userModel;

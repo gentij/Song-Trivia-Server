@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@typegoose/typegoose": "^9.10.1",
+    "@types/redis": "^4.0.11",
     "@types/socket.io": "^3.0.2",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",
@@ -32,6 +33,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.3.2",
     "morgan": "^1.10.0",
+    "redis": "^4.5.1",
     "socket.io": "^4.5.4",
     "swagger-jsdoc": "^6.2.1",
     "swagger-ui-express": "^4.5.0",
