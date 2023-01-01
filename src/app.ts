@@ -15,6 +15,8 @@ import { dbConnection } from '@databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import { getAccessToken } from '@utils/spotify';
+import cron from 'node-cron';
 import { AppConstructorParams } from '@interfaces/app.interface';
 import {
   ClientToServerEvents,
@@ -48,6 +50,7 @@ class App {
     this.initializeSocketControllers();
     this.initializeSwagger();
     this.initializeErrorHandling();
+    this.spotifyAccessTokenHandler();
   }
 
   public listen() {
@@ -114,6 +117,14 @@ class App {
 
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
+  }
+
+  private spotifyAccessTokenHandler() {
+    cron.schedule('*/55 * * * *', async () => {
+      const accessToken = await getAccessToken();
+
+      // save to redis
+    });
   }
 }
 
