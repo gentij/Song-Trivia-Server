@@ -26,5 +26,9 @@ export interface InterServerEvents {
 
 export interface SocketData {
   name: string;
-  age: number;
+  avatar: number;
+}
+
+export interface SocketWithUserData extends Socket {
+  data: SocketData
 }

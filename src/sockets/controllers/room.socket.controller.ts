@@ -1,14 +1,14 @@
-import { SocketController } from '@/interfaces/sockets.interface';
-import { Server as SocketServer, Socket } from 'socket.io';
+import { SocketController, SocketWithUserData } from '@/interfaces/sockets.interface';
+import { Server as SocketServer } from 'socket.io';
 import { RoomSocketService } from '../services/room.socket.service';
 
 
 export class RoomSocketController implements SocketController {
     io: SocketServer
-    socket: Socket
+    socket: SocketWithUserData
     service: RoomSocketService
     
-    constructor(io: SocketServer, socket: Socket) {
+    constructor(io: SocketServer, socket: SocketWithUserData) {
         this.io = io
         this.socket = socket
         this.service = new RoomSocketService(this.io, this.socket)
@@ -21,8 +21,8 @@ export class RoomSocketController implements SocketController {
     }
 
     private createRoom() {
-        this.socket.on('createRoom', message => {
-            return this.service.createRoom(message)
+        this.socket.on('createRoom', () => {
+            return this.service.createRoom()
         })
     }
 
