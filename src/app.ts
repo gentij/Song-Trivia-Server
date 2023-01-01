@@ -15,8 +15,14 @@ import { dbConnection } from '@databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
-import { AppConstructorParams } from './interfaces/app.interface';
-import { SocketControllerConstructable } from './interfaces/sockets.interface';
+import { AppConstructorParams } from '@interfaces/app.interface';
+import {
+  ClientToServerEvents,
+  InterServerEvents,
+  ServerToClientEvents,
+  SocketControllerConstructable,
+  SocketData,
+} from '@interfaces/sockets.interface';
 
 class App {
   public server: Server;
@@ -24,22 +30,22 @@ class App {
   public io: SocketServer;
   public env: string;
   public port: string | number;
-  public routes: Routes[]
-  public sockets: SocketControllerConstructable[]
+  public routes: Routes[];
+  public sockets: SocketControllerConstructable[];
 
-  constructor({routes, sockets}: AppConstructorParams) {
+  constructor({ routes, sockets }: AppConstructorParams) {
     this.app = express();
     this.server = createServer(this.app);
-    this.io = new SocketServer(this.server);
+    this.io = new SocketServer<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(this.server);
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
-    this.routes = routes
-    this.sockets =  sockets
+    this.routes = routes;
+    this.sockets = sockets;
 
     this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes();
-    this.initializeSocketControllers()
+    this.initializeSocketControllers();
     this.initializeSwagger();
     this.initializeErrorHandling();
   }
@@ -85,9 +91,9 @@ class App {
   private initializeSocketControllers() {
     this.io.on('connection', socket => {
       this.sockets.forEach(SocketController => {
-        new SocketController(this.io, socket).initializeSockets()
-      })
-    })
+        new SocketController(this.io, socket).initializeSockets();
+      });
+    });
   }
 
   private initializeSwagger() {
