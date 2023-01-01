@@ -1,17 +1,17 @@
 import { Router } from 'express';
-import TracksController from '@controllers/tracks.controller';
+import PlaylistsController from '@/controllers/playlists.controller';
 import { Routes } from '@interfaces/routes.interface';
 
 export default class TracksRoute implements Routes {
-  public path = '/tracks';
+  public path = '/playlists';
   public router = Router();
-  public tracksController = new TracksController();
+  public playlistsController = new PlaylistsController();
 
   constructor() {
     this.initializeRoutes();
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}/playlist/:playlist_id`, this.tracksController.getPlaylistTracks);
+    this.router.get(`${this.path}/:playlist_id`, this.playlistsController.getPlaylistTracks);
   }
 }

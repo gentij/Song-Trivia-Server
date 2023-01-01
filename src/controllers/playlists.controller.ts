@@ -1,8 +1,8 @@
 import { Track } from '@/interfaces/tracks.interface';
-import TrackService from '@/services/tracks.service';
+import TrackService from '@/services/playlists.service';
 import { NextFunction, Request, Response } from 'express';
 
-export default class TrackController {
+export default class PlaylistsController {
   public trackService = new TrackService();
 
   public getPlaylistTracks = async (req: Request, res: Response, next: NextFunction) => {

@@ -18,6 +18,7 @@
   "dependencies": {
     "@typegoose/typegoose": "^9.10.1",
     "@types/socket.io": "^3.0.2",
+    "@types/spotify-web-api-node": "^5.0.7",
     "axios": "^1.2.2",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",
