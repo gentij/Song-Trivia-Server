@@ -1,24 +1,24 @@
 import { SocketController } from '@/interfaces/sockets.interface';
-import { Server as SocketServer } from 'socket.io';
+import { Server as SocketServer, Socket } from 'socket.io';
 
 
 export class IndexSocketController implements SocketController {
     io: SocketServer
+    socket: Socket
     
-    constructor(io: SocketServer) {
+    constructor(io: SocketServer, socket: Socket) {
         this.io = io
         
         this.initializeSockets()
     }
     
     public initializeSockets() {
-        this.connection()
+        this.socketMessage()
     }
 
-    private connection() {
-        this.io.on('connection', socket => {
-            console.log("user connected");
+    private socketMessage() {
+        this.socket.on('socketMessage', message => {
+            console.log("user sent a message ", + message);
         })
     }
-
 }

@@ -83,9 +83,10 @@ class App {
   }
 
   private initializeSocketControllers() {
-    this.sockets.forEach(SocketController => {
-      const socket = new SocketController(this.io)
-      socket.initializeSockets()
+    this.io.on('connection', socket => {
+      this.sockets.forEach(SocketController => {
+        new SocketController(this.io, socket).initializeSockets()
+      })
     })
   }
 

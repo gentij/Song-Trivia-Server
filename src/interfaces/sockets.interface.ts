@@ -1,10 +1,11 @@
-import { Server as SocketServer } from 'socket.io';
+import { Server as SocketServer, Socket } from 'socket.io';
 
 export interface SocketController {
   io: SocketServer;
+  socket: Socket;
   initializeSockets: Function;
 }
 
 export interface SocketControllerConstructable {
-    new(io: SocketServer): SocketController
+    new(io: SocketServer, socket: Socket): SocketController
 }
