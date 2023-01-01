@@ -1,15 +1,15 @@
 import { Track } from '@/interfaces/tracks.interface';
-import TrackService from '@/services/playlists.service';
+import PlaylistService from '@/services/playlists.service';
 import { NextFunction, Request, Response } from 'express';
 
 export default class PlaylistsController {
-  public trackService = new TrackService();
+  public playlistService = new PlaylistService();
 
   public getPlaylistTracks = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const playlistId: string = req.params.playlist_id;
+      const playlistId: string = req.params.id;
 
-      const tracks: Array<Track> = await this.trackService.getPlaylistTracks(playlistId);
+      const tracks = await this.playlistService.getPlaylistTracks(playlistId);
 
       res.status(200).json({ data: tracks });
     } catch (error) {

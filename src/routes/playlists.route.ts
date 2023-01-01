@@ -2,7 +2,7 @@ import { Router } from 'express';
 import PlaylistsController from '@/controllers/playlists.controller';
 import { Routes } from '@interfaces/routes.interface';
 
-export default class TracksRoute implements Routes {
+export default class PlaylistsRoute implements Routes {
   public path = '/playlists';
   public router = Router();
   public playlistsController = new PlaylistsController();
@@ -12,6 +12,6 @@ export default class TracksRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}/:playlist_id`, this.playlistsController.getPlaylistTracks);
+    this.router.get(`${this.path}/:id`, this.playlistsController.getPlaylistTracks);
   }
 }
