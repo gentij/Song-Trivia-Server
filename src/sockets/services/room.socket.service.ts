@@ -12,13 +12,13 @@ export class RoomSocketService {
 
   public createRoom(socketData) {
     const room = { id: getRandomCode() };
-
+    
     return this.joinRoom(room)
   }
 
   public joinRoom(socketData) {
     this.socket.join(socketData.id);
 
-    this.io.to(socketData.id).emit('userJoined', { message: 'User joined lobby', ...socketData });
+    return this.io.to(socketData.id).emit('userJoined', { message: 'User joined lobby', ...socketData });
   }
 }
