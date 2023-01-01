@@ -18,6 +18,7 @@
   "dependencies": {
     "@typegoose/typegoose": "^9.10.1",
     "@types/socket.io": "^3.0.2",
+    "axios": "^1.2.2",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
@@ -69,6 +70,7 @@
     "nodemon": "^2.0.19",
     "pm2": "^5.2.0",
     "prettier": "^2.7.1",
+    "spotify-web-api-node": "^5.0.2",
     "supertest": "^6.2.4",
     "ts-jest": "^28.0.7",
     "ts-node": "^10.9.1",
