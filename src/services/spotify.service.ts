@@ -1,49 +1,35 @@
 import SpotifyWebApi from 'spotify-web-api-node';
-import axios from 'axios';
-import { Track } from '@/interfaces/tracks.interface';
+import { SPOTIFY_ACCESS_TOKEN_REDIS_KEY, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } from '@/config';
+import { IRedisClient, redisClient } from '@/databases';
 
 export default class SpotifyService {
   private spotifyApi: SpotifyWebApi;
+  private redisClient: IRedisClient;
 
   constructor() {
     this.spotifyApi = new SpotifyWebApi({
-      clientId: process.env.CLIENT_ID,
-      clientSecret: process.env.CLIENT_SECRET,
-      redirectUri: process.env.REDIRECT_URI,
+      clientId: SPOTIFY_CLIENT_ID,
+      clientSecret: SPOTIFY_CLIENT_SECRET,
+      redirectUri: SPOTIFY_REDIRECT_URI,
     });
-    this.setAccessToken();
+    this.redisClient = redisClient;
   }
 
-  private async setAccessToken(): Promise<any> {
-    const url = 'https://accounts.spotify.com/api/token';
+  public async getPlaylistTracks(playlistId: string): Promise<SpotifyApi.TrackObjectFull[]> {
+    await this.setAccessToken();
+    const limit = 10;
 
-    const headers = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64')}`,
-    };
-
-    const body = new URLSearchParams();
-    body.append('grant_type', 'client_credentials');
-
-    const res: any = await axios.post(url, body, { headers });
-    const { data } = res;
-    const accessToken = data?.access_token;
-    this.spotifyApi.setAccessToken(accessToken);
-
-    expect(data).not.toBeNull();
-  }
-
-  public async getPlaylistTracks(playlistId: string): Promise<Array<Track>> {
-    const res = await this.spotifyApi.getPlaylistTracks(playlistId, {
+    const { body } = await this.spotifyApi.getPlaylistTracks(playlistId, {
       offset: 1,
-      limit: 5,
+      limit,
       fields: 'items',
     });
 
-    const tracks: Array<Track> = res.body.items.map(item => {
-      return item.track;
-    });
+    return body.items.map(item => item.track);
+  }
 
-    return tracks;
+  private async setAccessToken() {
+    const accessToken = await this.redisClient.get(SPOTIFY_ACCESS_TOKEN_REDIS_KEY);
+    this.spotifyApi.setAccessToken(accessToken);
   }
 }
