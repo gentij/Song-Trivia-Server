@@ -1,13 +1,12 @@
 import App from '@/app';
-import AuthRoute from '@routes/auth.route';
 import IndexRoute from '@routes/index.route';
-import UsersRoute from '@routes/users.route';
 import PlaylistsRoute from '@/routes/playlists.route';
 import validateEnv from '@utils/validateEnv';
 import { IndexSocketController } from './sockets/controllers/index.socket.controller';
+import SpotifyRoute from './routes/spotify.route';
 
 validateEnv();
 
-const app = new App({ routes: [new IndexRoute(), new UsersRoute(), new AuthRoute(), new PlaylistsRoute()], sockets: [IndexSocketController] });
+const app = new App({ routes: [new IndexRoute(), new PlaylistsRoute(), new SpotifyRoute()], sockets: [IndexSocketController] });
 
 app.listen();
