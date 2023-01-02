@@ -1,6 +1,7 @@
 import SpotifyWebApi from 'spotify-web-api-node';
-import { SPOTIFY_ACCESS_TOKEN_REDIS_KEY, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } from '@/config';
+import { ACCESS_TOKEN_JWT_KEY, SPOTIFY_ACCESS_TOKEN_REDIS_KEY, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI } from '@/config';
 import { IRedisClient, redisClient } from '@/databases';
+import jwt from 'jsonwebtoken';
 
 export default class SpotifyService {
   private spotifyApi: SpotifyWebApi;
@@ -31,5 +32,13 @@ export default class SpotifyService {
   private async setAccessToken() {
     const accessToken = await this.redisClient.get(SPOTIFY_ACCESS_TOKEN_REDIS_KEY);
     this.spotifyApi.setAccessToken(accessToken);
+  }
+
+  public async getAccessToken() {
+    const accessToken = await this.redisClient.get(SPOTIFY_ACCESS_TOKEN_REDIS_KEY);
+
+    const accessTokenJWT = jwt.sign({ accessToken }, ACCESS_TOKEN_JWT_KEY);
+
+    return accessTokenJWT;
   }
 }
