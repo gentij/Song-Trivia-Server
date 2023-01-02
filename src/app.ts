@@ -15,7 +15,7 @@ import { connectRedis, dbConnection, IRedisClient, redisClient } from '@database
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
-import { getSpotifyAccessToken, setSpotifyAccessTokenToRedis } from '@utils/spotify';
+import { setSpotifyAccessTokenToRedis } from '@utils/spotify';
 import cron from 'node-cron';
 import { AppConstructorParams } from '@interfaces/app.interface';
 import {
