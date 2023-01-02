@@ -10,12 +10,12 @@ import morgan from 'morgan';
 import { connect, set } from 'mongoose';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
-import { connectRedis, dbConnection } from '@databases';
+import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS, SPOTIFY_ACCESS_TOKEN_REDIS_KEY, ACCESS_TOKEN_TTL } from '@config';
+import { connectRedis, dbConnection, IRedisClient, redisClient } from '@databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
-import { getAccessToken } from '@utils/spotify';
+import { getSpotifyAccessToken, setSpotifyAccessTokenToRedis } from '@utils/spotify';
 import cron from 'node-cron';
 import { AppConstructorParams } from '@interfaces/app.interface';
 import {
@@ -34,6 +34,7 @@ class App {
   public port: string | number;
   public routes: Routes[];
   public sockets: SocketControllerConstructable[];
+  private redisClient: IRedisClient;
 
   constructor({ routes, sockets }: AppConstructorParams) {
     this.app = express();
@@ -43,6 +44,7 @@ class App {
     this.port = PORT || 3000;
     this.routes = routes;
     this.sockets = sockets;
+    this.redisClient = redisClient;
 
     this.connectToDatabase();
     this.initializeMiddlewares();
@@ -72,7 +74,7 @@ class App {
     }
 
     connect(dbConnection);
-    connectRedis()
+    connectRedis();
   }
 
   private initializeMiddlewares() {
@@ -121,11 +123,7 @@ class App {
   }
 
   private spotifyAccessTokenHandler() {
-    cron.schedule('*/55 * * * *', async () => {
-      const accessToken = await getAccessToken();
-
-      // save to redis
-    });
+    cron.schedule('*/55 * * * *', async () => await setSpotifyAccessTokenToRedis(this.redisClient));
   }
 }
 
