@@ -97,7 +97,7 @@ class App {
   private initializeSocketControllers() {
     this.io.on('connection', socket => {
       this.sockets.forEach(SocketController => {
-        new SocketController(this.io, socket).initializeSockets();
+        new SocketController(this.io, socket);
       });
     });
   }

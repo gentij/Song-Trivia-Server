@@ -1,7 +1,7 @@
-import { IsString, Length } from 'class-validator';
+import { IsString, IsUUID } from 'class-validator';
 
-export class CreateRoomDto {
+export class JoinRoomDto {
   @IsString()
-  @Length(6)
+  @IsUUID()
   public roomId: string;
 }
