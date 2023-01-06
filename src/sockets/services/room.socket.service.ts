@@ -1,7 +1,6 @@
 import { IRedisClient, redisClient } from '@/databases';
-import { JoinRoomDto } from '@/dtos/roomSocket.dto';
+import { JoinRoomDto, SelectRoomPlaylistDto } from '@/dtos/roomSocket.dto';
 import { SocketWithUserData } from '@/interfaces/sockets.interface';
-import socketValidationMiddleware from '@/middlewares/socketValidation.middleware';
 import { getRandomCode } from '@/utils/getRandomCode';
 import { Server as SocketServer } from 'socket.io';
 
@@ -23,27 +22,51 @@ export class RoomSocketService {
   }
 
   public async joinRoom(data: JoinRoomDto) {
-    if (await socketValidationMiddleware(this.socket, JoinRoomDto, data)) return;
-
     const { roomId } = data;
 
-    const room = await this.redisClient.get(`room:${roomId}`);
+    const room = await this.getRoom(roomId);
 
     if (!room) {
       console.log('no such room or expired');
       return;
     }
 
-    const roomData = JSON.parse(room);
-
     this.socket.join(roomId);
 
-    await this.redisClient.setEx(
-      `room:${roomId}`,
-      500,
-      JSON.stringify({ ...roomData, players: [...new Set([...roomData.players, this.socket.id])] }),
-    );
+    await this.redisClient.setEx(`room:${roomId}`, 500, JSON.stringify({ ...room, players: [...new Set([...room.players, this.socket.id])] }));
 
-    return this.io.to(roomId).emit('userJoined', { message: `User: ${this.socket.id} has joined lobby: ${roomId}`, roomData });
+    return this.io.to(roomId).emit('userJoined', { message: `User: ${this.socket.id} has joined lobby: ${roomId}`, room });
+  }
+
+  public async selectRoomPlaylist(data: SelectRoomPlaylistDto) {
+    const { playlistId, roomId } = data;
+
+    const room = await this.getRoom(roomId);
+
+    if (!room) {
+      console.log('no such room or expired');
+      return;
+    }
+
+    if (room.creator !== this.socket.id) {
+      console.log('user is not the creator of the room');
+      return;
+    }
+
+    room.playlistId = playlistId;
+
+    await this.setRoom(roomId, room);
+
+    return this.io.to(roomId).emit('playlistSelected', { message: `User: ${this.socket.id} has selected playlist: ${playlistId}`, room });
+  }
+
+  public async getRoom(roomId: string) {
+    const room = await this.redisClient.get(`room:${roomId}`);
+
+    return room ? JSON.parse(room) : undefined;
+  }
+
+  public async setRoom(roomId: string, room: unknown) {
+    return await this.redisClient.setEx(`room:${roomId}`, 500, JSON.stringify(room));
   }
 }
