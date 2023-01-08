@@ -1,4 +1,5 @@
 import { Server as SocketServer, Socket } from 'socket.io';
+import { Player } from '@interfaces/player.interface';
 
 export interface SocketController {
   io: SocketServer;
@@ -7,7 +8,7 @@ export interface SocketController {
 }
 
 export interface SocketControllerConstructable {
-    new(io: SocketServer, socket: Socket): SocketController
+  new (io: SocketServer, socket: Socket): SocketController;
 }
 
 export interface ServerToClientEvents {
@@ -24,11 +25,8 @@ export interface InterServerEvents {
   ping: () => void;
 }
 
-export interface SocketData {
-  name: string;
-  avatar: number;
-}
+export interface SocketData extends Player {}
 
 export interface SocketWithUserData extends Socket {
-  data: SocketData
+  data: { player: SocketData };
 }

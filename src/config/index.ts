@@ -19,6 +19,7 @@ export const {
   ACCESS_TOKEN_TTL,
   SPOTIFY_TOKEN_API_URL,
   SPOTIFY_REDIRECT_URI,
+  AVATARS_API_URL,
 } = process.env;
 
 export const SPOTIFY_TOKEN_API_HEADERS = {

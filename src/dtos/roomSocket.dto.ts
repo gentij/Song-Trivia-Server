@@ -8,7 +8,7 @@ export class JoinRoomDto {
 
 export class SelectRoomPlaylistDto {
   @IsString()
-  public playlistId: string;
+  public playlist: string;
 
   @IsString()
   @IsUUID()
