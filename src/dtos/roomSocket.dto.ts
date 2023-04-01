@@ -6,6 +6,12 @@ export class JoinRoomDto {
   public roomId: string;
 }
 
+export class LeaveRoomDto {
+  @IsString()
+  @IsUUID()
+  public roomId: string;
+}
+
 export class SelectRoomPlaylistDto {
   @IsString()
   public playlist: string;

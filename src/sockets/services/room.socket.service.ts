@@ -1,5 +1,5 @@
 import { IRedisClient, redisClient } from '@/databases';
-import { JoinRoomDto, SelectRoomPlaylistDto } from '@/dtos/roomSocket.dto';
+import { JoinRoomDto, LeaveRoomDto, SelectRoomPlaylistDto } from '@/dtos/roomSocket.dto';
 import { Room } from '@/interfaces/rooms.interface';
 import { SocketWithUserData } from '@/interfaces/sockets.interface';
 import { getRandomCode } from '@/utils/getRandomCode';
@@ -45,6 +45,31 @@ export class RoomSocketService {
     const updatedRoom = await this.updateRoom(room, { players: [...new Set([...room.players, { id: this.socket.id, ...this.socket.data.player }])] });
 
     return this.io.to(roomId).emit('userJoined', { message: `User: ${this.socket.id} has joined lobby: ${roomId}`, room: updatedRoom });
+  }
+
+  public async leaveRoom(data: LeaveRoomDto) {
+    const { roomId } = data;
+
+    const room = await this.getRoom(roomId);
+
+    if (!room) {
+      console.log('no such room or expired');
+      return;
+    }
+
+    this.socket.leave(roomId);
+
+    const updatedRoom = await this.updateRoom(room, {
+      players: [
+        ...new Set(
+          room.players.filter(player => {
+            if (player.id !== this.socket.id) return player;
+          }),
+        ),
+      ],
+    });
+
+    return this.io.to(roomId).emit('userLeft', { message: `User: ${this.socket.id} has left the lobby: ${roomId}`, room: updatedRoom });
   }
 
   public async selectRoomPlaylist(data: SelectRoomPlaylistDto) {

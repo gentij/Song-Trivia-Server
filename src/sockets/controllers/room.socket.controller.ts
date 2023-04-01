@@ -1,4 +1,4 @@
-import { JoinRoomDto, SelectRoomPlaylistDto } from '@/dtos/roomSocket.dto';
+import { JoinRoomDto, LeaveRoomDto, SelectRoomPlaylistDto } from '@/dtos/roomSocket.dto';
 import { SocketController, SocketWithUserData } from '@/interfaces/sockets.interface';
 import socketValidationMiddleware from '@/middlewares/socketValidation.middleware';
 import { Server as SocketServer } from 'socket.io';
@@ -19,6 +19,7 @@ export class RoomSocketController implements SocketController {
   public initializeSockets() {
     this.createRoom();
     this.joinRoom();
+    this.leaveRoom();
     this.selectRoomPlaylist();
   }
 
@@ -32,6 +33,13 @@ export class RoomSocketController implements SocketController {
     this.socket.on('joinRoom', async (data: JoinRoomDto) => {
       if (await socketValidationMiddleware(this.socket, JoinRoomDto, data)) return;
       return this.service.joinRoom(data);
+    });
+  }
+
+  private leaveRoom() {
+    this.socket.on('leaveRoom', async (data: LeaveRoomDto) => {
+      if (await socketValidationMiddleware(this.socket, LeaveRoomDto, data)) return;
+      return this.service.leaveRoom(data);
     });
   }
 
