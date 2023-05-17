@@ -25,7 +25,7 @@ export class IndexSocketController implements SocketController {
 
   private socketMessage() {
     this.socket.on('socketMessage', message => {
-      console.log('user sent a message ', +message);
+      console.log('user sent a message ', message);
     });
   }
 }
