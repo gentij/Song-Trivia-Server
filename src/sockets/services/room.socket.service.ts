@@ -24,6 +24,7 @@ export class RoomSocketService {
       playlist: null,
       currentRound: 0,
       totalRounds: 10,
+      status: 'idle',
     };
 
     await this.setRoom(room.id, room);
