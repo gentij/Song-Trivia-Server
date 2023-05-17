@@ -1,7 +1,8 @@
 import { IRedisClient, redisClient } from '@/databases';
 import { JoinRoomDto, SelectRoomPlaylistDto } from '@/dtos/roomSocket.dto';
-import { Room } from '@/interfaces/rooms.interface';
+import { ROOM_STATUS_ENUM, Room } from '@/interfaces/rooms.interface';
 import { SocketWithUserData } from '@/interfaces/sockets.interface';
+import { ErrorSocketResponse, SuccessSocketResponse } from '@/utils/SocketResponse';
 import { getRandomCode } from '@/utils/getRandomCode';
 import { Server as SocketServer } from 'socket.io';
 
@@ -24,7 +25,7 @@ export class RoomSocketService {
       playlist: null,
       currentRound: 0,
       totalRounds: 10,
-      status: 'idle',
+      status: ROOM_STATUS_ENUM.IDLE,
     };
 
     await this.setRoom(room.id, room);
@@ -37,15 +38,14 @@ export class RoomSocketService {
     const room = await this.getRoom(roomId);
 
     if (!room) {
-      console.log('no such room or expired');
-      return;
+      return this.io.to(roomId).emit('userJoined', new ErrorSocketResponse('No such room or expired'));
     }
 
     this.socket.join(roomId);
 
     const updatedRoom = await this.updateRoom(room, { players: [...new Set([...room.players, { id: this.socket.id, ...this.socket.data.player }])] });
 
-    return this.io.to(roomId).emit('userJoined', { message: `User: ${this.socket.id} has joined lobby: ${roomId}`, room: updatedRoom });
+    return this.io.to(roomId).emit('userJoined', new SuccessSocketResponse(updatedRoom, `User: ${this.socket.id} has joined lobby: ${roomId}`));
   }
 
   public async selectRoomPlaylist(data: SelectRoomPlaylistDto) {
@@ -54,18 +54,18 @@ export class RoomSocketService {
     const room = await this.getRoom(roomId);
 
     if (!room) {
-      console.log('no such room or expired');
-      return;
+      return this.io.to(roomId).emit('playlistSelected', new ErrorSocketResponse('No such room or expired'));
     }
 
     if (room.creator !== this.socket.id) {
-      console.log('user is not the creator of the room');
-      return;
+      return this.io.to(roomId).emit('playlistSelected', new ErrorSocketResponse('User is not the creator of the room'));
     }
 
     const updatedRoom = await this.updateRoom(room, { playlist });
 
-    return this.io.to(roomId).emit('playlistSelected', { message: `User: ${this.socket.id} has selected playlist: ${playlist}`, room: updatedRoom });
+    return this.io
+      .to(roomId)
+      .emit('playlistSelected', new SuccessSocketResponse(updatedRoom, `User: ${this.socket.id} has selected playlist: ${playlist}`));
   }
 
   public async getRoom(roomId: string): Promise<Room | undefined> {

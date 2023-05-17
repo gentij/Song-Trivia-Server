@@ -3,6 +3,7 @@ import { ROOM_STATUS_ENUM } from '@/interfaces/rooms.interface';
 import { SocketWithUserData } from '@/interfaces/sockets.interface';
 import { Server as SocketServer } from 'socket.io';
 import { RoomSocketService } from './room.socket.service';
+import { ErrorSocketResponse, SuccessSocketResponse } from '@/utils/SocketResponse';
 
 export class GameSocketService {
   private io: SocketServer;
@@ -21,17 +22,15 @@ export class GameSocketService {
     const room = await this.roomService.getRoom(roomId);
 
     if (!room) {
-      console.log('no such room or expired');
-      return;
+      return this.io.to(roomId).emit('gameStarted', new ErrorSocketResponse('No such room or expired'));
     }
 
     if (room.creator !== this.socket.id) {
-      console.log('You dont have permission');
-      return;
+      return this.io.to(roomId).emit('gameStarted', new ErrorSocketResponse('You dont have permission'));
     }
 
     const updatedRoom = await this.roomService.setRoom(room.id, { ...room, status: ROOM_STATUS_ENUM.started });
 
-    return this.io.to(roomId).emit('gameStarted', { message: `Game started`, room: updatedRoom });
+    return this.io.to(roomId).emit('gameStarted', new SuccessSocketResponse(updatedRoom, `Game started`));
   }
 }
