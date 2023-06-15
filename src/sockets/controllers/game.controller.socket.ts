@@ -18,11 +18,15 @@ export class GameSocketController implements SocketController {
     this.initializeSockets();
   }
 
-  public initializeSockets() {}
+  public initializeSockets() {
+    this.startGame();
+  }
 
-  private async startGame(data: StartGameDto) {
-    if (await socketValidationMiddleware(this.socket, StartGameDto, data)) return;
+  private startGame() {
+    this.socket.on('startGame', async (data: StartGameDto) => {
+      if (await socketValidationMiddleware(this.socket, StartGameDto, data)) return;
 
-    return this.service.startGame(data.roomId);
+      return this.service.startGame(data.roomId);
+    });
   }
 }

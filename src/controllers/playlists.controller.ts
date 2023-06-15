@@ -1,4 +1,3 @@
-import { Track } from '@/interfaces/tracks.interface';
 import PlaylistService from '@/services/playlists.service';
 import { NextFunction, Request, Response } from 'express';
 

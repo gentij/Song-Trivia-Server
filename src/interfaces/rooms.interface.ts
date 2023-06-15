@@ -13,6 +13,7 @@ export interface Room {
   playlist: string | null;
   totalRounds: number;
   currentRound: number;
+  roundDuration: number;
   players: Player[];
   status: ROOM_STATUS;
 }

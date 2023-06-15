@@ -25,6 +25,7 @@ export class RoomSocketService {
       players: [],
       playlist: null,
       currentRound: 0,
+      roundDuration: 10,
       totalRounds: 10,
       status: ROOM_STATUS_ENUM.IDLE,
     };
