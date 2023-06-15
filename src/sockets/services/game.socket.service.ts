@@ -1,5 +1,5 @@
 import { IRedisClient, redisClient } from '@/databases';
-import { ROOM_STATUS_ENUM } from '@/interfaces/rooms.interface';
+import { ROOM_STATUS_ENUM, Room } from '@/interfaces/rooms.interface';
 import { SocketWithUserData } from '@/interfaces/sockets.interface';
 import { Server as SocketServer } from 'socket.io';
 import { RoomSocketService } from './room.socket.service';
@@ -8,6 +8,7 @@ import { SERVER_SOCKET_EVENTS } from '../events';
 import PlaylistService from '@/services/playlists.service';
 import { getRandomUniqueItems } from '@/utils/getRandomUniqueItems';
 import { GuessTrackDto } from '@/dtos/gameSocket.dto';
+import { Player } from '@/interfaces/player.interface';
 
 export class GameSocketService {
   private io: SocketServer;
@@ -71,6 +72,28 @@ export class GameSocketService {
 
     const updatedRoom = await this.roomService.setRoom(room.id, room);
 
+    await this.checkGamePhase(room);
+
     return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new SuccessSocketResponse(updatedRoom, `User ${player.name} guessed`));
+  }
+
+  private async checkGamePhase(room: Room) {
+    const { players, currentRound, id, totalRounds } = room;
+
+    const allGuesses = players.reduce((acc, { guesses }) => guesses.length + acc, 0);
+
+    if (allGuesses / players.length === currentRound) {
+      if (currentRound === totalRounds) {
+        // game is done
+        // get back to this
+        const updatedRoom = await this.roomService.setRoom(room.id, { ...room, status: 'idle' });
+
+        return this.io.to(id).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new SuccessSocketResponse(updatedRoom, `Game finnished`));
+      }
+
+      const updatedRoom = await this.roomService.setRoom(room.id, { ...room, currentRound: currentRound + 1 });
+
+      return this.io.to(id).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new SuccessSocketResponse(updatedRoom, `Round ${currentRound} finnished`));
+    }
   }
 }
