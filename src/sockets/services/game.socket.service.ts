@@ -44,7 +44,7 @@ export class GameSocketService {
 
     const tracksToPlay = getRandomUniqueItems(allTracks, room.totalRounds).map(({ id }) => ({ id }));
 
-    const updatedRoom = await this.roomService.setRoom(room.id, { ...room, tracksToPlay, status: ROOM_STATUS_ENUM.started });
+    const updatedRoom = await this.roomService.setRoom(room.id, { ...room, tracksToPlay, status: ROOM_STATUS_ENUM.STARTED });
 
     return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.GAME_STARTED, new SuccessSocketResponse(updatedRoom, `Game started`));
   }
@@ -54,6 +54,10 @@ export class GameSocketService {
 
     if (!room) {
       return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new ErrorSocketResponse('No such room or expired'));
+    }
+
+    if (room.status !== ROOM_STATUS_ENUM.STARTED) {
+      return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new ErrorSocketResponse('Games hasnt started'));
     }
 
     const playerIndex = room.players.findIndex(player => player.id === this.socket.id);

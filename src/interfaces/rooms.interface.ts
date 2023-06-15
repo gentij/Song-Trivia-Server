@@ -2,7 +2,7 @@ import { Player } from './player.interface';
 
 export enum ROOM_STATUS_ENUM {
   IDLE = 'idle',
-  started = 'started',
+  STARTED = 'started',
 }
 
 export type ROOM_STATUS = 'idle' | 'started';
