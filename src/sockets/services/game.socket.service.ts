@@ -6,6 +6,7 @@ import { RoomSocketService } from './room.socket.service';
 import { ErrorSocketResponse, SuccessSocketResponse } from '@/utils/SocketResponse';
 import { SERVER_SOCKET_EVENTS } from '../events';
 import PlaylistService from '@/services/playlists.service';
+import { getRandomUniqueItems } from '@/utils/getRandomUniqueItems';
 
 export class GameSocketService {
   private io: SocketServer;
@@ -37,7 +38,11 @@ export class GameSocketService {
       return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.GAME_STARTED, new ErrorSocketResponse('You have not selected a playlist'));
     }
 
-    const updatedRoom = await this.roomService.setRoom(room.id, { ...room, status: ROOM_STATUS_ENUM.started });
+    const allTracks = await this.playlistService.getPlaylistTracks(room.playlist);
+
+    const tracksToPlay = getRandomUniqueItems(allTracks, room.totalRounds).map(({ id }) => ({ id }));
+
+    const updatedRoom = await this.roomService.setRoom(room.id, { ...room, tracksToPlay, status: ROOM_STATUS_ENUM.started });
 
     return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.GAME_STARTED, new SuccessSocketResponse(updatedRoom, `Game started`));
   }

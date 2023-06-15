@@ -16,4 +16,5 @@ export interface Room {
   roundDuration: number;
   players: Player[];
   status: ROOM_STATUS;
+  tracksToPlay?: Array<{ id: string }>;
 }
