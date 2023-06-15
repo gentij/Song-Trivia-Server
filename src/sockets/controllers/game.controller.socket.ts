@@ -1,5 +1,5 @@
 import { AVATARS_API_URL } from '@/config';
-import { StartGameDto } from '@/dtos/gameSocket.dto';
+import { GuessTrackDto, StartGameDto } from '@/dtos/gameSocket.dto';
 import { Player } from '@/interfaces/player.interface';
 import { SocketController, SocketWithUserData } from '@/interfaces/sockets.interface';
 import socketValidationMiddleware from '@/middlewares/socketValidation.middleware';
@@ -27,6 +27,14 @@ export class GameSocketController implements SocketController {
       if (await socketValidationMiddleware(this.socket, StartGameDto, data)) return;
 
       return this.service.startGame(data.roomId);
+    });
+  }
+
+  private guessTrack() {
+    this.socket.on('guessTrack', async (data: GuessTrackDto) => {
+      if (await socketValidationMiddleware(this.socket, GuessTrackDto, data)) return;
+
+      return this.service.guessTrack(data);
     });
   }
 }

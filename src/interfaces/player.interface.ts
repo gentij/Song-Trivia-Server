@@ -3,4 +3,5 @@ export interface Player {
   name: string;
   avatar: string;
   points: number;
+  guesses: boolean[];
 }

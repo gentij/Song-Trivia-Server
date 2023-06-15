@@ -5,3 +5,12 @@ export class StartGameDto {
   @IsUUID()
   public roomId: string;
 }
+
+export class GuessTrackDto {
+  @IsString()
+  @IsUUID()
+  public roomId: string;
+
+  @IsString()
+  public guess: string;
+}

@@ -7,6 +7,7 @@ import { ErrorSocketResponse, SuccessSocketResponse } from '@/utils/SocketRespon
 import { SERVER_SOCKET_EVENTS } from '../events';
 import PlaylistService from '@/services/playlists.service';
 import { getRandomUniqueItems } from '@/utils/getRandomUniqueItems';
+import { GuessTrackDto } from '@/dtos/gameSocket.dto';
 
 export class GameSocketService {
   private io: SocketServer;
@@ -45,5 +46,31 @@ export class GameSocketService {
     const updatedRoom = await this.roomService.setRoom(room.id, { ...room, tracksToPlay, status: ROOM_STATUS_ENUM.started });
 
     return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.GAME_STARTED, new SuccessSocketResponse(updatedRoom, `Game started`));
+  }
+
+  public async guessTrack({ roomId, guess }: GuessTrackDto) {
+    const room = await this.roomService.getRoom(roomId);
+
+    if (!room) {
+      return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new ErrorSocketResponse('No such room or expired'));
+    }
+
+    const playerIndex = room.players.findIndex(player => player.id === this.socket.id);
+    const player = room.players[playerIndex];
+
+    if (!player) {
+      return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new ErrorSocketResponse('Not a member of the room'));
+    }
+
+    if (room.currentRound >= player.guesses.length) {
+      return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new ErrorSocketResponse('User already guessed for this round'));
+    }
+
+    player.guesses[player.guesses.length] = room.tracksToPlay[room.currentRound].id === guess;
+    room[playerIndex] = player;
+
+    const updatedRoom = await this.roomService.setRoom(room.id, room);
+
+    return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new SuccessSocketResponse(updatedRoom, `User ${player.name} guessed`));
   }
 }
