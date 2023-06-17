@@ -76,9 +76,9 @@ export class GameSocketService {
 
     const updatedRoom = await this.roomService.setRoom(room.id, room);
 
-    await this.checkGamePhase(room);
+    this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new SuccessSocketResponse(updatedRoom, `User ${player.name} guessed`));
 
-    return this.io.to(roomId).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new SuccessSocketResponse(updatedRoom, `User ${player.name} guessed`));
+    return await this.checkGamePhase(room);
   }
 
   private async checkGamePhase(room: Room) {
@@ -92,7 +92,7 @@ export class GameSocketService {
         // get back to this
         const updatedRoom = await this.roomService.setRoom(room.id, { ...room, status: 'idle' });
 
-        return this.io.to(id).emit(SERVER_SOCKET_EVENTS.TRACK_GUESSED, new SuccessSocketResponse(updatedRoom, `Game finnished`));
+        return this.io.to(id).emit(SERVER_SOCKET_EVENTS.GAME_FINNISHED, new SuccessSocketResponse(updatedRoom, `Game finnished`));
       }
 
       const updatedRoom = await this.roomService.setRoom(room.id, { ...room, currentRound: currentRound + 1 });
